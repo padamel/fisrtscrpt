@@ -1,0 +1,63 @@
+#!/bin/bash
+#this project executes system inventory
+#Author: Armel Jeubou
+
+
+echo -e "//checking the OS and its version//\n"
+cat /etc/*release |head -3
+
+echo " "
+echo -e "//checking the size of the memory//\n"
+free -t |grep Mem |awk '{print $1,$2,$3}'
+
+echo "  "
+echo -e "//checking the hard drive size//\n"
+lsblk /dev/sda > sdafile |grep sda sdafile |awk '{print $1,$4}'
+
+echo " "
+echo -e "//checking cpu speed in MHZ//\n"
+if [ -e /proc/cpuinfo ]
+then
+lscpu |grep MHz
+fi
+
+echo " "
+echo -e "//system number of bits//\n"
+sleep 2
+
+for n in bits
+do
+(uname -r) |awk -F "." '{print $7}'
+done
+
+echo " "
+echo -e "//checking for kernel version\n"
+hostnamectl |tail -2
+
+echo "  "
+echo -e "//checking hostname in the server//\n"
+ cat /proc/sys/kernel/hostname
+
+echo "  "
+echo -e "//checking for IP address//\n"
+nmcli -p |sed -n 4,5p
+
+echo " "
+echo -e "//checking for all ports opened//\n"
+ss -tulnp
+
+echo " "
+echo -e "//what is the dns?//\n"
+cat /etc/resolv.conf
+
+echo " "
+echo -e "//is the machine virtual or physical?//\n"
+hostnamectl
+
+echo " "
+echo -e "//what is the MAC address?//\n"
+ifconfig |grep ether
+
+echo " "
+echo -e "//what is the manufacturer?//\n"
+dmidecode --type system |sed -n 7p
